@@ -118,8 +118,8 @@ class Glister(EarlyTrain):
             selection_result = np.array([], dtype=np.int64)
             #weights = np.array([], dtype=np.float32)
             for c in range(self.num_classes):
-                c_indx = self.train_indx[self.dst_train.targets == c]
-                c_val_inx = self.val_indx[self.dst_val.targets == c]
+                c_indx = self.train_indx[np.array(self.dst_train.targets) == c]
+                c_val_inx = self.val_indx[np.array(self.dst_val.targets) == c]
                 self.calc_gradient(index=c_val_inx, val=True, record_val_detail=True)
                 if self.dst_val != self.dst_train:
                     self.calc_gradient(index=c_indx)
