@@ -413,7 +413,7 @@ def InceptionV3(channel: int, num_classes: int, im_size, record_embedding: bool 
         if num_classes != 1000:
             net.fc = nn.Linear(net.fc.in_features, num_classes)
 
-    elif im_size[0] == 224 and im_size[1] == 224:
+    elif im_size[0] in [224, 256, 299, 512] and im_size[1] in [224, 256, 299, 512]:
         net = InceptionV3_224x224(channel=channel, num_classes=num_classes, record_embedding=record_embedding,
                                   no_grad=no_grad)
     elif (channel == 1 and im_size[0] == 28 and im_size[1] == 28) or (

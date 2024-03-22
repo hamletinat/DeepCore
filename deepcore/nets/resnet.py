@@ -174,7 +174,7 @@ def ResNet(arch: str, channel: int, num_classes: int, im_size, record_embedding:
         if num_classes != 1000:
             net.fc = nn.Linear(net.fc.in_features, num_classes)
 
-    elif im_size[0] == 224 and im_size[1] == 224:
+    elif im_size[0] in [224, 256, 512] and im_size[1] in [224, 256, 512]:
         if arch == "resnet18":
             net = ResNet_224x224(resnet.BasicBlock, [2, 2, 2, 2], channel=channel, num_classes=num_classes,
                                  record_embedding=record_embedding, no_grad=no_grad)
