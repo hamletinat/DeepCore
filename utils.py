@@ -40,12 +40,18 @@ def train(train_loader, network, criterion, optimizer, scheduler, epoch, args, r
             target = contents[1].to(args.device)
             input = contents[0].to(args.device)
 
-            # Compute output
+             # Compute output
             output = network(input)
-            loss = criterion(output, target).mean()
+            pred, aux_output = None, None
+            if isinstance(output, tuple):
+                pred, aux_output = output
+            else:
+                pred, aux_output = output, None
+            loss = criterion(pred, target).mean()
+            # loss = criterion(output, target).mean()   #### custom change to avoid errors from models with aux
 
         # Measure accuracy and record loss
-        prec1 = accuracy(output.data, target, topk=(1,))[0]
+        prec1 = accuracy(pred.data, target, topk=(1,))[0] ### custom change output.data -> pred.data (folowed above changes)
         losses.update(loss.data.item(), input.size(0))
         top1.update(prec1.item(), input.size(0))
 

@@ -80,14 +80,19 @@ class EarlyTrain(CoresetMethod):
             # Forward propagation, compute loss, get predictions
             self.model_optimizer.zero_grad()
             outputs = self.model(inputs)
-            loss = self.criterion(outputs, targets)
 
-            self.after_loss(outputs, loss, targets, trainset_permutation_inds[i], epoch)
+            pred, aux_output = None, None
+            if isinstance(outputs, tuple):
+                pred, aux_output = outputs
+            else:
+                pred, aux_output = outputs, None
+            loss = self.criterion(pred, targets)
+            # loss = self.criterion(outputs, targets)  ### custom change to avoid errors from models with aux
+            self.after_loss(pred, loss, targets, trainset_permutation_inds[i], epoch) #### outputs > pred
 
             # Update loss, backward propagate, update optimizer
             loss = loss.mean()
-
-            self.while_update(outputs, loss, targets, epoch, i, self.args.selection_batch)
+            self.while_update(pred, loss, targets, epoch, i, self.args.selection_batch) #### outputs > pred
 
             loss.backward()
             self.model_optimizer.step()
