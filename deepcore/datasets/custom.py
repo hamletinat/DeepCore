@@ -11,8 +11,8 @@ def CUSTOM(data_path):
     std = (0.2770, 0.2691, 0.2821)
 
     transform = transforms.Compose([transforms.Resize(im_size), transforms.ToTensor()])
-    dst_train = ImageFolder(root=os.path.join(data_path, 'brain-tumor-mri-dataset/Training'), transform=transform)
-    dst_test = ImageFolder(root=os.path.join(data_path, 'brain-tumor-mri-dataset/Testing'), transform=transform)
+    dst_train = ImageFolder(root=os.path.join(data_path, 'Training'), transform=transform)
+    dst_test = ImageFolder(root=os.path.join(data_path, 'Testing'), transform=transform)
     
     class_names = dst_train.classes
     return channel, im_size, num_classes, class_names, mean, std, dst_train, dst_test
