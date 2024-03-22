@@ -67,8 +67,8 @@ def k_center_greedy(matrix, budget: int, metric, device, random_seed=None, index
 
 class kCenterGreedy(EarlyTrain):
     def __init__(self, dst_train, args, fraction=0.5, random_seed=None, epochs=0,
-                 specific_model="ResNet18", balance: bool = False, already_selected=[], metric="euclidean",
-                 torchvision_pretrain: bool = True, **kwargs):
+                 specific_model="InceptionV3", balance: bool = True, already_selected=[], metric="euclidean",
+                 torchvision_pretrain: bool = False, **kwargs):
         super().__init__(dst_train, args, fraction, random_seed, epochs=epochs, specific_model=specific_model,
                          torchvision_pretrain=torchvision_pretrain, **kwargs)
 
@@ -158,7 +158,7 @@ class kCenterGreedy(EarlyTrain):
         if self.balance:
             selection_result = np.array([], dtype=np.int32)
             for c in range(self.args.num_classes):
-                class_index = np.arange(self.n_train)[self.dst_train.targets == c]
+                class_index = np.arange(self.n_train)[np.array(self.dst_train.targets) == c]
 
                 selection_result = np.append(selection_result, k_center_greedy(self.construct_matrix(class_index),
                                                                                budget=round(

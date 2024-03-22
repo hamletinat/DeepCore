@@ -15,9 +15,9 @@ def main():
 
     # Basic arguments
     parser.add_argument('--dataset', type=str, default='CIFAR10', help='dataset')
-    parser.add_argument('--model', type=str, default='ResNet18', help='model')
-    parser.add_argument('--selection', type=str, default="uniform", help="selection method")
-    parser.add_argument('--num_exp', type=int, default=5, help='the number of experiments')
+    parser.add_argument('--model', type=str, default='InceptionV3', help='model')
+    parser.add_argument('--selection', type=str, default="kCenterGreedy", help="selection method")
+    parser.add_argument('--num_exp', type=int, default=1, help='the number of experiments')
     parser.add_argument('--num_eval', type=int, default=10, help='the number of evaluating randomly initialized models')
     parser.add_argument('--epochs', default=200, type=int, help='number of total epochs to run')
     parser.add_argument('--data_path', type=str, default='data', help='dataset path')
