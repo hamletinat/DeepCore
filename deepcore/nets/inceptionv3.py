@@ -400,8 +400,8 @@ class InceptionV3_224x224(inception.Inception3):
 def InceptionV3(channel: int, num_classes: int, im_size, record_embedding: bool = False, no_grad: bool = False,
                 pretrained: bool = False):
     if pretrained:
-        if im_size[0] != 224 or im_size[1] != 224:
-            raise NotImplementedError("torchvison pretrained models only accept inputs with size of 224*224")
+        # if im_size[0] != 224 or im_size[1] != 224:
+        #     raise NotImplementedError("torchvison pretrained models only accept inputs with size of 224*224")
         net = InceptionV3_224x224(channel=3, num_classes=1000, record_embedding=record_embedding, no_grad=no_grad)
 
         from torch.hub import load_state_dict_from_url
