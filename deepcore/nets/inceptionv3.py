@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 from torchvision.models import inception
+from torchvision.models import inception_v3
 from .nets_utils import EmbeddingRecorder
 
 
@@ -330,7 +331,7 @@ class InceptionV3_32x32(nn.Module):
 
 class InceptionV3_224x224(inception.Inception3):
     def __init__(self, channel: int, num_classes: int, record_embedding: bool = False,
-                 no_grad: bool = False, **kwargs):
+                 no_grad: bool = False, pretrained: bool = False, **kwargs):
         super().__init__(num_classes=num_classes, **kwargs)
         self.embedding_recorder = EmbeddingRecorder(record_embedding)
         if channel != 3:
@@ -396,9 +397,33 @@ class InceptionV3_224x224(inception.Inception3):
             # N x 1000 (num_classes)
             return x, aux
 
+# class CustomInceptionv3(nn.Module):
+#     def __init__(self, num_classes, input_channels, record_embedding, no_grad, use_pretrained=True):
+#         super().__init__()
+#         self.embedding_recorder = EmbeddingRecorder(record_embedding)
+#         # change input channel
+#         self.model_ft = inception_v3(pretrained=use_pretrained)
+#         self.model_ft.Conv2d_1a_3x3.conv = nn.Conv2d(input_channels, 32, kernel_size=(3, 3), stride=(2, 2), bias=False)
+
+#         num_ftrs = self.model_ft.fc.in_features
+#         self.model_ft.fc = nn.Linear(num_ftrs, num_classes, bias=True)
+
+#         for param in self.model_ft.parameters():
+#             param.requires_grad = True
+#         self.no_grad = no_grad
+#         self.model_ft.aux_logits = False
+
+#     def get_last_layer(self):
+#         return self.model_ft.fc
+
+#     def forward(self, x):
+#         with torch.set_grad_enabled(not self.no_grad):
+#             x = self.model_ft(x)
+#         return x
 
 def InceptionV3(channel: int, num_classes: int, im_size, record_embedding: bool = False, no_grad: bool = False,
                 pretrained: bool = False):
+    
     if pretrained:
         # if im_size[0] != 224 or im_size[1] != 224:
         #     raise NotImplementedError("torchvison pretrained models only accept inputs with size of 224*224")

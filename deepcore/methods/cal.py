@@ -60,7 +60,7 @@ class Cal(EarlyTrain):
         if self.balance:
             knn = []
             for c in range(self.args.num_classes):
-                class_index = np.arange(self.n_train)[self.dst_train.targets == c]
+                class_index = np.arange(self.n_train)[np.array(self.dst_train.targets) == c]
 
                 # Start recording embedding vectors
                 embdeddings = []
