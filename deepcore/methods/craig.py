@@ -89,7 +89,7 @@ class Craig(EarlyTrain):
                 selection_result = np.array([], dtype=np.int32)
                 weights = np.array([])
                 for c in range(self.args.num_classes):
-                    class_index = np.arange(self.n_train)[self.dst_train.targets == c]
+                    class_index = np.arange(self.n_train)[np.array(self.dst_train.targets) == c]
                     matrix = -1. * self.calc_gradient(class_index)
                     matrix -= np.min(matrix) - 1e-3
                     submod_function = FacilityLocation(index=class_index, similarity_matrix=matrix)
@@ -104,7 +104,7 @@ class Craig(EarlyTrain):
                 matrix = np.zeros([self.n_train, self.n_train])
                 all_index = np.arange(self.n_train)
                 for c in range(self.args.num_classes):  # Sparse Matrix
-                    class_index = np.arange(self.n_train)[self.dst_train.targets == c]
+                    class_index = np.arange(self.n_train)[np.array(self.dst_train.targets) == c]
                     matrix[np.ix_(class_index, class_index)] = -1. * self.calc_gradient(class_index)
                     matrix[np.ix_(class_index, class_index)] -= np.min(matrix[np.ix_(class_index, class_index)]) - 1e-3
                 submod_function = FacilityLocation(index=all_index, similarity_matrix=matrix)

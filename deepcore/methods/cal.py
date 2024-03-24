@@ -10,7 +10,7 @@ from torchvision import transforms
 
 class Cal(EarlyTrain):
     def __init__(self, dst_train, args, fraction=0.5, random_seed=None, epochs=200, specific_model=None,
-                 balance=True, metric="euclidean", neighbors: int = 10, pretrain_model: str = "ResNet18", **kwargs):
+                 balance=True, metric="euclidean", neighbors: int = 10, pretrain_model: str = "InceptionV3", **kwargs):
         super().__init__(dst_train, args, fraction, random_seed, epochs, specific_model, **kwargs)
 
         self.balance = balance
@@ -45,7 +45,7 @@ class Cal(EarlyTrain):
 
         # Initialize pretrained model
         model = nets.__dict__[self.pretrain_model](channel=self.args.channel, num_classes=self.args.num_classes,
-                                                   im_size=(224, 224), record_embedding=True, no_grad=True,
+                                                   im_size=(512, 512), record_embedding=True, no_grad=True,
                                                    pretrained=True).to(self.args.device)
         model.eval()
 
@@ -125,7 +125,7 @@ class Cal(EarlyTrain):
         if self.balance:
             selection_result = np.array([], dtype=np.int32)
             for c, knn in zip(range(self.args.num_classes), self.knn):
-                class_index = np.arange(self.n_train)[self.dst_train.targets == c]
+                class_index = np.arange(self.n_train)[np.array(self.dst_train.targets) == c]
                 scores.append(self.calc_kl(knn, class_index))
                 selection_result = np.append(selection_result, class_index[np.argsort(
                     #self.calc_kl(knn, class_index))[::1][:round(self.fraction * len(class_index))]])
