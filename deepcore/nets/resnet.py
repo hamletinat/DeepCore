@@ -148,25 +148,32 @@ def ResNet(arch: str, channel: int, num_classes: int, im_size, record_embedding:
            pretrained: bool = False):
     arch = arch.lower()
     if pretrained:
+        url = ""
         if arch == "resnet18":
+            url = "https://download.pytorch.org/models/resnet18-5c106cde.pth"
             net = ResNet_224x224(resnet.BasicBlock, [2, 2, 2, 2], channel=3, num_classes=1000,
                                  record_embedding=record_embedding, no_grad=no_grad)
         elif arch == "resnet34":
+            url = "https://download.pytorch.org/models/resnet34-333f7ec4.pth"
             net = ResNet_224x224(resnet.BasicBlock, [3, 4, 6, 3], channel=3, num_classes=1000,
                                  record_embedding=record_embedding, no_grad=no_grad)
         elif arch == "resnet50":
+            url = "https://download.pytorch.org/models/resnet50-19c8e357.pth"
             net = ResNet_224x224(resnet.Bottleneck, [3, 4, 6, 3], channel=3, num_classes=1000,
                                  record_embedding=record_embedding, no_grad=no_grad)
         elif arch == "resnet101":
+            url = "https://download.pytorch.org/models/resnet101-5d3b4d8f.pth"
             net = ResNet_224x224(resnet.Bottleneck, [3, 4, 23, 3], channel=3, num_classes=1000,
                                  record_embedding=record_embedding, no_grad=no_grad)
         elif arch == "resnet152":
+            url = "https://download.pytorch.org/models/resnet152-b121ed2d.pth"
             net = ResNet_224x224(resnet.Bottleneck, [3, 8, 36, 3], channel=3, num_classes=1000,
                                  record_embedding=record_embedding, no_grad=no_grad)
         else:
             raise ValueError("Model architecture not found.")
         from torch.hub import load_state_dict_from_url
-        state_dict = load_state_dict_from_url(resnet.model_urls[arch], progress=True)
+        # state_dict = load_state_dict_from_url(resnet.model_urls[arch], progress=True)
+        state_dict = load_state_dict_from_url(url, progress=True) # custom change for torchvision > 0.13
         net.load_state_dict(state_dict)
 
         if channel != 3:

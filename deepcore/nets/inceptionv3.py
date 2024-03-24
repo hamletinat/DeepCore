@@ -405,7 +405,9 @@ def InceptionV3(channel: int, num_classes: int, im_size, record_embedding: bool 
         net = InceptionV3_224x224(channel=3, num_classes=1000, record_embedding=record_embedding, no_grad=no_grad)
 
         from torch.hub import load_state_dict_from_url
-        state_dict = load_state_dict_from_url(inception.model_urls["inception_v3_google"], progress=True)
+        # state_dict = load_state_dict_from_url(inception.model_urls["inception_v3_google"], progress=True)
+        pretrained_model_url = "https://download.pytorch.org/models/inception_v3_google-1a9a5a14.pth"
+        state_dict = load_state_dict_from_url(pretrained_model_url, progress=True) # custom change to load pretrained model for torchvision > 0.13
         net.load_state_dict(state_dict)
 
         if channel != 3:
