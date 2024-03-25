@@ -29,8 +29,8 @@ def train(train_loader, network, criterion, optimizer, scheduler, epoch, args, r
     for i, contents in enumerate(train_loader):
         optimizer.zero_grad()
         if if_weighted:
-            target = contents[0][1].to(args.device)
-            input = contents[0][0].to(args.device)
+            target = contents[1].to(args.device) # contents[0][1]
+            input = contents[0].to(args.device) # contents[0][0]
 
             # Compute output
             output = network(input)
