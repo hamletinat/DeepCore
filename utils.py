@@ -34,8 +34,14 @@ def train(train_loader, network, criterion, optimizer, scheduler, epoch, args, r
 
             # Compute output
             output = network(input)
+            pred, aux_output = None, None
+            if isinstance(output, tuple):
+                pred, aux_output = output
+            else:
+                pred, aux_output = output, None
             weights = contents[1].to(args.device).requires_grad_(False)
-            loss = torch.sum(criterion(output, target) * weights) / torch.sum(weights)
+            # loss = torch.sum(criterion(output, target) * weights) / torch.sum(weights)
+            loss = torch.sum(criterion(pred, target) * weights) / torch.sum(weights)
         else:
             target = contents[1].to(args.device)
             input = contents[0].to(args.device)
