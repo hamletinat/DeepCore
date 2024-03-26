@@ -89,7 +89,7 @@ class Submodular(EarlyTrain):
             if self.balance:
                 selection_result = np.array([], dtype=np.int64)
                 for c in range(self.num_classes):
-                    c_indx = self.train_indx[self.dst_train.targets == c]
+                    c_indx = self.train_indx[np.array(self.dst_train.targets) == c]
                     # Calculate gradients into a matrix
                     gradients = self.calc_gradient(index=c_indx)
                     # Instantiate a submodular function
