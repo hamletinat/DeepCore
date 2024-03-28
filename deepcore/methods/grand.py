@@ -5,7 +5,7 @@ from ..nets.nets_utils import MyDataParallel
 
 
 class GraNd(EarlyTrain):
-    def __init__(self, dst_train, args, fraction=0.5, random_seed=None, epochs=200, repeat=10,
+    def __init__(self, dst_train, args, fraction=0.5, random_seed=None, epochs=200, repeat=1,
                  specific_model=None, balance=False, **kwargs):
         super().__init__(dst_train, args, fraction, random_seed, epochs, specific_model)
         self.epochs = epochs
