@@ -68,7 +68,7 @@ class GraNd(EarlyTrain):
         else:
             top_examples = np.array([], dtype=np.int64)
             for c in range(self.num_classes):
-                c_indx = self.train_indx[self.dst_train.targets == c]
+                c_indx = self.train_indx[np.array(self.dst_train.targets) == c]
                 budget = round(self.fraction * len(c_indx))
                 top_examples = np.append(top_examples, c_indx[np.argsort(self.norm_mean[c_indx])[::-1][:budget]])
 
