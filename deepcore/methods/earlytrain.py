@@ -12,17 +12,21 @@ class EarlyTrain(CoresetMethod):
     Core code for training related to coreset selection methods when pre-training is required.
     '''
 
-    def __init__(self, dst_train, args, fraction=0.5, random_seed=None, epochs=200, specific_model=None,
+    def __init__(self, dst_train, args, fraction=[0.5], random_seed=None, epochs=200, specific_model=None,
                  torchvision_pretrain: bool = False, dst_pretrain_dict: dict = {}, fraction_pretrain=1., dst_test=None,
                  **kwargs):
         super().__init__(dst_train, args, fraction, random_seed)
         self.epochs = epochs
         self.n_train = len(dst_train)
-        self.coreset_size = round(self.n_train * fraction)
+        # self.coreset_size = round(self.n_train * fraction)
+        self.coreset_size = [round(self.n_train * fct) for fct in fraction] ### change for multiple fractions
         self.specific_model = specific_model
 
-        if fraction_pretrain <= 0. or fraction_pretrain > 1.:
-            raise ValueError("Illegal pretrain fraction value.")
+        # if fraction_pretrain <= 0. or fraction_pretrain > 1.:
+        #     raise ValueError("Illegal pretrain fraction value.")
+        not_accept = [0 for frc in fraction if frc <= 0.0 or frc > 1.0]  ### change for multiple fractions
+        if 0 in not_accept:
+            raise ValueError("Illegal Coreset Size.")
         self.fraction_pretrain = fraction_pretrain
 
         if dst_pretrain_dict.__len__() != 0:

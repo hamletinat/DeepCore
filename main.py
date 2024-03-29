@@ -23,7 +23,7 @@ def main():
     parser.add_argument('--data_path', type=str, default='data', help='dataset path')
     parser.add_argument('--gpu', default=None, nargs="+", type=int, help='GPU id to use')
     parser.add_argument('--print_freq', '-p', default=20, type=int, help='print frequency (default: 20)')
-    parser.add_argument('--fraction', default=0.1, type=float, help='fraction of data to be selected (default: 0.1)')
+    parser.add_argument('--fraction', default=[0.1], type=float, help='fraction of data to be selected (default: 0.1)')
     parser.add_argument('--seed', default=int(time.time() * 1000) % 100000, type=int, help="random seed")
     parser.add_argument('-j', '--workers', default=4, type=int, metavar='N',
                         help='number of data loading workers (default: 4)')
@@ -178,9 +178,9 @@ def main():
         # Handle weighted subset
         if_weighted = "weights" in subset.keys()
         if if_weighted:
-            dst_subset = WeightedSubset(dst_train, subset["indices"], subset["weights"])
+            dst_subset = WeightedSubset(dst_train, subset["indices"][0], subset["weights"][0]) ### change for multiple fractions
         else:
-            dst_subset = torch.utils.data.Subset(dst_train, subset["indices"])
+            dst_subset = torch.utils.data.Subset(dst_train, subset["indices"][0]) ### change for multiple fractions
 
         # BackgroundGenerator for ImageNet to speed up dataloaders
         if args.dataset == "ImageNet":

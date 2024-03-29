@@ -85,35 +85,40 @@ class Submodular(EarlyTrain):
         with self.model.embedding_recorder:
             self.model.no_grad = True
             self.train_indx = np.arange(self.n_train)
-
+            selection_results_list = [] ### changes for multipple fractions
             if self.balance:
-                selection_result = np.array([], dtype=np.int64)
-                for c in range(self.num_classes):
-                    c_indx = self.train_indx[np.array(self.dst_train.targets) == c]
-                    # Calculate gradients into a matrix
-                    gradients = self.calc_gradient(index=c_indx)
-                    # Instantiate a submodular function
-                    submod_function = submodular_function.__dict__[self._function](index=c_indx,
-                                        similarity_kernel=lambda a, b:cossim_np(gradients[a], gradients[b]))
-                    submod_optimizer = submodular_optimizer.__dict__[self._greedy](args=self.args,
-                                        index=c_indx, budget=round(self.fraction * len(c_indx)), already_selected=[])
+                for current_fruction in self.fraction: ### changes for multipple fractions
+                    print("\n ***** current fraction= ", current_fruction)
+                    selection_result = np.array([], dtype=np.int64)
+                    for c in range(self.num_classes):
+                        c_indx = self.train_indx[np.array(self.dst_train.targets) == c]
+                        # Calculate gradients into a matrix
+                        gradients = self.calc_gradient(index=c_indx)
+                        # Instantiate a submodular function
+                        submod_function = submodular_function.__dict__[self._function](index=c_indx,
+                                            similarity_kernel=lambda a, b:cossim_np(gradients[a], gradients[b]))
+                        submod_optimizer = submodular_optimizer.__dict__[self._greedy](args=self.args,
+                                            index=c_indx, budget=round(current_fruction * len(c_indx)), already_selected=[]) #self.fraction
 
-                    c_selection_result = submod_optimizer.select(gain_function=submod_function.calc_gain,
-                                                                 update_state=submod_function.update_state)
-                    selection_result = np.append(selection_result, c_selection_result)
+                        c_selection_result = submod_optimizer.select(gain_function=submod_function.calc_gain,
+                                                                    update_state=submod_function.update_state)
+                        selection_result = np.append(selection_result, c_selection_result)
+                    selection_results_list.append(selection_result) ### changes for multipple fractions
             else:
-                # Calculate gradients into a matrix
-                gradients = self.calc_gradient()
-                # Instantiate a submodular function
-                submod_function = submodular_function.__dict__[self._function](index=self.train_indx,
-                                            similarity_kernel=lambda a, b: cossim_np(gradients[a], gradients[b]))
-                submod_optimizer = submodular_optimizer.__dict__[self._greedy](args=self.args, index=self.train_indx,
-                                                                                  budget=self.coreset_size)
-                selection_result = submod_optimizer.select(gain_function=submod_function.calc_gain,
+                for current_coreset_size in self.coreset_size: ### changes for multipple fractions
+                    # Calculate gradients into a matrix
+                    gradients = self.calc_gradient()
+                    # Instantiate a submodular function
+                    submod_function = submodular_function.__dict__[self._function](index=self.train_indx,
+                                                similarity_kernel=lambda a, b: cossim_np(gradients[a], gradients[b]))
+                    submod_optimizer = submodular_optimizer.__dict__[self._greedy](args=self.args, index=self.train_indx,
+                                                                                    budget=current_coreset_size) #self.coreset_size
+                    selection_result = submod_optimizer.select(gain_function=submod_function.calc_gain,
                                                            update_state=submod_function.update_state)
+                    selection_results_list.append(selection_result) ### changes for multipple fractions
 
             self.model.no_grad = False
-        return {"indices": selection_result}
+        return {"indices": selection_results_list} # selection_result ### changes for multipple fractions
 
     def select(self, **kwargs):
         selection_result = self.run()
