@@ -158,6 +158,7 @@ class kCenterGreedy(EarlyTrain):
         selection_results_list = [] ### changes for multipple fractions
         if self.balance:
             for current_fruction in self.fraction: ### changes for multipple fractions
+                print("\n **** current fraction to chose coreset: ", current_fruction)
                 selection_result = np.array([], dtype=np.int32)
                 for c in range(self.args.num_classes):
                     class_index = np.arange(self.n_train)[np.array(self.dst_train.targets) == c]
