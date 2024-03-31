@@ -155,28 +155,35 @@ class kCenterGreedy(EarlyTrain):
 
     def select(self, **kwargs):
         self.run()
+        selection_results_list = [] ### changes for multipple fractions
         if self.balance:
-            selection_result = np.array([], dtype=np.int32)
-            for c in range(self.args.num_classes):
-                class_index = np.arange(self.n_train)[np.array(self.dst_train.targets) == c]
+            for current_fruction in self.fraction: ### changes for multipple fractions
+                selection_result = np.array([], dtype=np.int32)
+                for c in range(self.args.num_classes):
+                    class_index = np.arange(self.n_train)[np.array(self.dst_train.targets) == c]
 
-                selection_result = np.append(selection_result, k_center_greedy(self.construct_matrix(class_index),
-                                                                               budget=round(
-                                                                                   self.fraction * len(class_index)),
-                                                                               metric=self.metric,
-                                                                               device=self.args.device,
-                                                                               random_seed=self.random_seed,
-                                                                               index=class_index,
-                                                                               already_selected=self.already_selected[
-                                                                                   np.in1d(self.already_selected,
-                                                                                           class_index)],
-                                                                               print_freq=self.args.print_freq))
+                    selection_result = np.append(selection_result, k_center_greedy(self.construct_matrix(class_index),
+                                                                                budget=round(
+                                                                                    current_fruction * len(class_index)),
+                                                                                metric=self.metric,
+                                                                                device=self.args.device,
+                                                                                random_seed=self.random_seed,
+                                                                                index=class_index,
+                                                                                already_selected=self.already_selected[
+                                                                                    np.in1d(self.already_selected,
+                                                                                            class_index)],
+                                                                                print_freq=self.args.print_freq)) ## self.fraction -> current_fruction
+                selection_results_list.append(selection_result) ### changes for multipple fractions
         else:
-            matrix = self.construct_matrix()
-            del self.model_optimizer
-            del self.model
-            selection_result = k_center_greedy(matrix, budget=self.coreset_size,
-                                               metric=self.metric, device=self.args.device,
-                                               random_seed=self.random_seed,
-                                               already_selected=self.already_selected, print_freq=self.args.print_freq)
-        return {"indices": selection_result}
+            for current_coreset_size in self.coreset_size: ### changes for multipple fractions
+                matrix = self.construct_matrix()
+                del self.model_optimizer
+                del self.model
+                selection_result = k_center_greedy(matrix, budget=current_coreset_size,
+                                                metric=self.metric, device=self.args.device,
+                                                random_seed=self.random_seed,
+                                                already_selected=self.already_selected, print_freq=self.args.print_freq) ## self.coreset_size -> self.coreset_size
+                
+                selection_results_list.append(selection_result) ### changes for multipple fractions
+
+        return {"indices": selection_results_list} # selection_result ### changes for multipple fractions
