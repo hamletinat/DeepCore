@@ -77,5 +77,5 @@ class GraNd(EarlyTrain):
                     c_indx = self.train_indx[np.array(self.dst_train.targets) == c]
                     budget = round(current_fruction * len(c_indx)) #self.fraction
                     top_examples = np.append(top_examples, c_indx[np.argsort(self.norm_mean[c_indx])[::-1][:budget]])
-                selection_results_list.append(top_examples) ### changes for multipple fractions
+                selection_results_list.append(top_examples) ### changes for multiple fractions
         return {"indices": selection_results_list, "scores": self.norm_mean} # top_examples -> selection_results_list  ### changes for multipple fractions
