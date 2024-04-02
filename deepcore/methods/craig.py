@@ -84,38 +84,47 @@ class Craig(EarlyTrain):
 
         self.model.no_grad = True
         with self.model.embedding_recorder:
+            selection_results_list = [] ### changes for multipple fractions
+            selection_weights_list = []
             if self.balance:
-                # Do selection by class
-                selection_result = np.array([], dtype=np.int32)
-                weights = np.array([])
-                for c in range(self.args.num_classes):
-                    class_index = np.arange(self.n_train)[np.array(self.dst_train.targets) == c]
-                    matrix = -1. * self.calc_gradient(class_index)
-                    matrix -= np.min(matrix) - 1e-3
-                    submod_function = FacilityLocation(index=class_index, similarity_matrix=matrix)
-                    submod_optimizer = submodular_optimizer.__dict__[self._greedy](args=self.args, index=class_index,
-                                                                                   budget=round(self.fraction * len(
-                                                                                       class_index)))
-                    class_result = submod_optimizer.select(gain_function=submod_function.calc_gain,
-                                                           update_state=submod_function.update_state)
-                    selection_result = np.append(selection_result, class_result)
-                    weights = np.append(weights, self.calc_weights(matrix, np.isin(class_index, class_result)))
+                for current_fruction in self.fraction: ### changes for multipple fractions
+                    print("\n ***** current fraction= ", current_fruction)
+                    # Do selection by class
+                    selection_result = np.array([], dtype=np.int32)
+                    weights = np.array([])
+                    for c in range(self.args.num_classes):
+                        class_index = np.arange(self.n_train)[np.array(self.dst_train.targets) == c]
+                        matrix = -1. * self.calc_gradient(class_index)
+                        matrix -= np.min(matrix) - 1e-3
+                        submod_function = FacilityLocation(index=class_index, similarity_matrix=matrix)
+                        submod_optimizer = submodular_optimizer.__dict__[self._greedy](args=self.args, index=class_index,
+                                                                                    budget=round(current_fruction * len(
+                                                                                        class_index))) # self.fraction -> current_fraction
+                        class_result = submod_optimizer.select(gain_function=submod_function.calc_gain,
+                                                            update_state=submod_function.update_state)
+                        selection_result = np.append(selection_result, class_result)
+                        weights = np.append(weights, self.calc_weights(matrix, np.isin(class_index, class_result)))
+                    selection_results_list.append(selection_result) ### changes for multipple fractions
+                    selection_weights_list.append(weights)
             else:
-                matrix = np.zeros([self.n_train, self.n_train])
-                all_index = np.arange(self.n_train)
-                for c in range(self.args.num_classes):  # Sparse Matrix
-                    class_index = np.arange(self.n_train)[np.array(self.dst_train.targets) == c]
-                    matrix[np.ix_(class_index, class_index)] = -1. * self.calc_gradient(class_index)
-                    matrix[np.ix_(class_index, class_index)] -= np.min(matrix[np.ix_(class_index, class_index)]) - 1e-3
-                submod_function = FacilityLocation(index=all_index, similarity_matrix=matrix)
-                submod_optimizer = submodular_optimizer.__dict__[self._greedy](args=self.args, index=all_index,
-                                                                               budget=self.coreset_size)
-                selection_result = submod_optimizer.select(gain_function=submod_function.calc_gain_batch,
-                                                           update_state=submod_function.update_state,
-                                                           batch=self.args.selection_batch)
-                weights = self.calc_weights(matrix, selection_result)
+                for current_coreset_size in self.coreset_size: ### changes for multipple fractions
+                    matrix = np.zeros([self.n_train, self.n_train])
+                    all_index = np.arange(self.n_train)
+                    for c in range(self.args.num_classes):  # Sparse Matrix
+                        class_index = np.arange(self.n_train)[np.array(self.dst_train.targets) == c]
+                        matrix[np.ix_(class_index, class_index)] = -1. * self.calc_gradient(class_index)
+                        matrix[np.ix_(class_index, class_index)] -= np.min(matrix[np.ix_(class_index, class_index)]) - 1e-3
+                    submod_function = FacilityLocation(index=all_index, similarity_matrix=matrix)
+                    submod_optimizer = submodular_optimizer.__dict__[self._greedy](args=self.args, index=all_index,
+                                                                                budget=current_coreset_size) # self.coreset_size -> current_coreset_size
+                    selection_result = submod_optimizer.select(gain_function=submod_function.calc_gain_batch,
+                                                            update_state=submod_function.update_state,
+                                                            batch=self.args.selection_batch)
+                    weights = self.calc_weights(matrix, selection_result)
+                    selection_results_list.append(selection_result) ### changes for multipple fractions
+                    selection_weights_list.append(weights)
         self.model.no_grad = False
-        return {"indices": selection_result, "weights": weights}
+        return {"indices": selection_results_list, "weights": selection_weights_list} # selection_result and weights ### changes for multipple fractions
 
     def select(self, **kwargs):
         selection_result = self.run()

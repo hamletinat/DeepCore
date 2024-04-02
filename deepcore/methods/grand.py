@@ -63,13 +63,18 @@ class GraNd(EarlyTrain):
             self.random_seed = self.random_seed + 5
 
         self.norm_mean = torch.mean(self.norm_matrix, dim=1).cpu().detach().numpy()
+        selection_results_list = [] ### changes for multipple fractions
         if not self.balance:
-            top_examples = self.train_indx[np.argsort(self.norm_mean)][::-1][:self.coreset_size]
+            for current_coreset_size in self.coreset_size: ### changes for multipple fractions
+                top_examples = self.train_indx[np.argsort(self.norm_mean)][::-1][:current_coreset_size] # self.coreset_size -> current_coreset_size
+                selection_results_list.append(top_examples)
         else:
-            top_examples = np.array([], dtype=np.int64)
-            for c in range(self.num_classes):
-                c_indx = self.train_indx[np.array(self.dst_train.targets) == c]
-                budget = round(self.fraction * len(c_indx))
-                top_examples = np.append(top_examples, c_indx[np.argsort(self.norm_mean[c_indx])[::-1][:budget]])
-
-        return {"indices": top_examples, "scores": self.norm_mean}
+            for current_fruction in self.fraction: ### changes for multipple fractions
+                print("\n ***** current fraction= ", current_fruction)
+                top_examples = np.array([], dtype=np.int64)
+                for c in range(self.num_classes):
+                    c_indx = self.train_indx[np.array(self.dst_train.targets) == c]
+                    budget = round(current_fruction * len(c_indx)) #self.fraction
+                    top_examples = np.append(top_examples, c_indx[np.argsort(self.norm_mean[c_indx])[::-1][:budget]])
+                selection_results_list.append(top_examples) ### changes for multipple fractions
+        return {"indices": selection_results_list, "scores": self.norm_mean} # top_examples -> selection_results_list  ### changes for multipple fractions

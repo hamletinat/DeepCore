@@ -121,18 +121,25 @@ class Cal(EarlyTrain):
         return s
 
     def finish_run(self):
-        scores=[]
+        # scores=[]
+        selection_results_list = [] ### changes for multiple fractions
         if self.balance:
-            selection_result = np.array([], dtype=np.int32)
-            for c, knn in zip(range(self.args.num_classes), self.knn):
-                class_index = np.arange(self.n_train)[np.array(self.dst_train.targets) == c]
-                scores.append(self.calc_kl(knn, class_index))
-                selection_result = np.append(selection_result, class_index[np.argsort(
-                    #self.calc_kl(knn, class_index))[::1][:round(self.fraction * len(class_index))]])
-                    scores[-1])[::1][:round(self.fraction * len(class_index))]])
+            for current_fruction in self.fraction: ### changes for multipple fractions
+                scores=[] ### changes for multipple fractions
+                print("\n ***** current fraction= ", current_fruction)
+                selection_result = np.array([], dtype=np.int32)
+                for c, knn in zip(range(self.args.num_classes), self.knn):
+                    class_index = np.arange(self.n_train)[np.array(self.dst_train.targets) == c]
+                    scores.append(self.calc_kl(knn, class_index))
+                    selection_result = np.append(selection_result, class_index[np.argsort(
+                        #self.calc_kl(knn, class_index))[::1][:round(self.fraction * len(class_index))]])
+                        scores[-1])[::1][:round(current_fruction * len(class_index))]]) # self.fraction -> current_fruction
+                selection_results_list.append(selection_result) ### changes for multipple fractions
         else:
-            selection_result = np.argsort(self.calc_kl(self.knn))[::1][:self.coreset_size]
-        return {"indices": selection_result, "scores":scores}
+            for current_coreset_size in self.coreset_size: ### changes for multipple fractions
+                selection_result = np.argsort(self.calc_kl(self.knn))[::1][:current_coreset_size] # self.coreset_size -> current_coreset_size
+                selection_results_list.append(selection_result) ### changes for multiple fractions
+        return {"indices": selection_results_list, "scores":scores}
 
     def select(self, **kwargs):
         self.knn = self.find_knn()
