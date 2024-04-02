@@ -5,12 +5,13 @@ from ..nets.nets_utils import MyDataParallel
 
 
 class GraNd(EarlyTrain):
-    def __init__(self, dst_train, args, fraction=0.5, random_seed=None, epochs=200, repeat=1,
+    def __init__(self, dst_train, args, fraction=0.5, random_seed=None, epochs=1, repeat=1,
                  specific_model=None, balance=False, **kwargs):
         super().__init__(dst_train, args, fraction, random_seed, epochs, specific_model)
         self.epochs = epochs
         self.n_train = len(dst_train)
-        self.coreset_size = round(self.n_train * fraction)
+        # self.coreset_size = round(self.n_train * fraction)
+        self.coreset_size = [round(self.n_train * fct) for fct in fraction] ### change for multiple fractions
         self.specific_model = specific_model
         self.repeat = repeat
 
