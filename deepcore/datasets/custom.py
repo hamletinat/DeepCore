@@ -6,7 +6,7 @@ import os
 def CUSTOM(data_path):
     channel = 3
     im_size = (512, 512)
-    num_classes = 4
+    num_classes = 2
     mean = (0.4802, 0.4481, 0.3975)
     std = (0.2770, 0.2691, 0.2821)
 
